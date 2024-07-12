@@ -138,6 +138,8 @@ class Form implements IForm
                             if ($validationMethod === null) throw new FormValidationException("Invalid element " . $i);
                             if (!$validationMethod($v)) throw new FormValidationException("Invalid type given for element " . $this->labelMap[$i]);
                             $newData[$this->labelMap[$i]] = $v;
+
+                            FiberManager::wait();
                         }
                         $data = $newData;
                     }
