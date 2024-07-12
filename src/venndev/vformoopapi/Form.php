@@ -50,7 +50,8 @@ class Form implements IForm
      * @throws Throwable
      */
     public function __construct(
-        private readonly Player $player
+        private readonly Player $player,
+        private readonly mixed $middleWare = null
     )
     {
         $this->sendForm();
@@ -280,6 +281,8 @@ class Form implements IForm
                     FiberManager::wait();
                 }
 
+                if (is_callable($this->middleWare)) ($this->middleWare)();
+
                 $resolve();
             } catch (Throwable $e) {
                 $reject($e);
@@ -289,6 +292,14 @@ class Form implements IForm
         })->catch(function (Throwable $e): void {
             throw $e;
         });
+    }
+
+    /**
+     * Use this method to set the content of a form
+     */
+    protected function setIndexContent(int $index, mixed $value): void
+    {
+        $this->data["content"][$index] = array_merge($this->data["content"][$index], $value);
     }
 
     protected function onClose(Player $player): void
