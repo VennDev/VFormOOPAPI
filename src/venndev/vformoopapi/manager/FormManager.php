@@ -66,32 +66,29 @@ trait FormManager
 
     private function processNormalForm(object $attribute): bool|null
     {
-        if ($this->type === TypeForm::NORMAL_FORM) {
-            if ($attribute instanceof VButtonNormal) {
-                $content = [TypeContent::TEXT => $attribute->text];
-                if ($attribute->type !== null) {
-                    $content[TypeContent::IMAGE][ImageContent::TYPE] = $attribute->type;
-                    $content[TypeContent::IMAGE][ImageContent::DATA] = $attribute->image;
-                }
-                $this->data[TypeContent::BUTTONS][] = $content;
-                $this->labelMap[] = $attribute->label ?? count($this->labelMap);
-                return true;
+        if ($this->type === TypeForm::NORMAL_FORM && $attribute instanceof VButtonNormal) {
+            $content = [TypeContent::TEXT => $attribute->text];
+            if ($attribute->type !== null) {
+                $content[TypeContent::IMAGE][ImageContent::TYPE] = $attribute->type;
+                $content[TypeContent::IMAGE][ImageContent::DATA] = $attribute->image;
             }
+            $this->data[TypeContent::BUTTONS][] = $content;
+            $this->labelMap[] = $attribute->label ?? count($this->labelMap);
+            return true;
         }
+
         return null;
     }
 
     private function processModalForm(object $attribute): bool|null
     {
-        if ($this->type === TypeForm::MODAL_FORM) {
-            if ($attribute instanceof VButtonModal) {
-                if ($this->data[TypeContent::BUTTON_1] === "") {
-                    $this->data[TypeContent::BUTTON_1] = $attribute->text;
-                } elseif ($this->data[TypeContent::BUTTON_2] === "") {
-                    $this->data[TypeContent::BUTTON_2] = $attribute->text;
-                }
-                return true;
+        if ($this->type === TypeForm::MODAL_FORM && $attribute instanceof VButtonModal) {
+            if ($this->data[TypeContent::BUTTON_1] === "") {
+                $this->data[TypeContent::BUTTON_1] = $attribute->text;
+            } elseif ($this->data[TypeContent::BUTTON_2] === "") {
+                $this->data[TypeContent::BUTTON_2] = $attribute->text;
             }
+            return true;
         }
 
         return null;
