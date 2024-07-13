@@ -53,6 +53,16 @@ final class TestForm extends Form
 
 }
 ```
+
+# Needed 
+```php
+    public function onEnable(): void
+    {
+        VapmPMMP::init($this); // <--- you need init Vapm in onEnable() function
+        //.......
+    }
+```
+
 # PHP Required
 - Version >= `8.2`
 
