@@ -53,6 +53,9 @@ final class TestForm extends Form
 
 }
 ```
+# PHP Required
+- Version >= 8.2
+
 # Virion Required
 - [LibVapmPMMP](https://github.com/VennDev/LibVapmPMMP)
 
