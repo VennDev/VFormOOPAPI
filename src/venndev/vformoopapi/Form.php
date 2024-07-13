@@ -161,7 +161,7 @@ class Form implements IForm
      */
     protected function setIndexContent(int $index, mixed $value): void
     {
-        $this->data["content"][$index] = array_merge($this->data["content"][$index], $value);
+        $this->data[TypeContent::CONTENT][$index] = array_merge($this->data[TypeContent::CONTENT][$index], $value);
     }
 
     protected function onClose(Player $player): void
