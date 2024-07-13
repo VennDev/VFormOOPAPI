@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace venndev\vformoopapi;
 
 use Exception;
-use pocketmine\Server;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
 use Throwable;
+use pocketmine\Server;
 use pocketmine\form\Form as IForm;
 use pocketmine\player\Player;
 use venndev\vformoopapi\attributes\VForm;
