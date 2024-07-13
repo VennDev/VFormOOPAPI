@@ -137,7 +137,7 @@ trait FormManager
                     TypeContent::DEFAULT => $attribute->default
                 ]);
                 $this->labelMap[] = $attribute->label ?? count($this->labelMap);
-                $this->validationMethods[] = static fn($v) => is_int($v) && isset($attribute->options[$v]);
+                $this->validationMethods[] = static fn($v) => $v === -1 || (is_int($v) && isset($attribute->options[$v]));
                 return true;
             } elseif ($attribute instanceof VSlider) {
                 $content = [
@@ -161,7 +161,7 @@ trait FormManager
                 if ($attribute->default !== -1) $content[TypeContent::DEFAULT] = $attribute->default;
                 $addContent($content);
                 $this->labelMap[] = $attribute->label ?? count($this->labelMap);
-                $this->validationMethods[] = static fn($v) => is_int($v) && isset($attribute->steps[$v]);
+                $this->validationMethods[] = static fn($v) => $v === -1 || (is_int($v) && isset($attribute->steps[$v]));
                 return true;
             }
         }

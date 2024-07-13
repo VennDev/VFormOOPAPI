@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace venndev\vformoopapi;
 
+use Exception;
+use pocketmine\Server;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionMethod;
@@ -70,31 +72,35 @@ class Form implements IForm
     public function handleResponse(Player $player, mixed $data): void
     {
         new Async(function () use ($player, $data) {
-            $data = Async::await($this->processData($data));
-            if ($data === null) {
-                $this->onClose($player);
-                return;
-            }
-            if (is_array($data) && $this->type === TypeForm::CUSTOM_FORM) {
-                foreach ($data as $key => $value) {
-                    if (isset($this->callableMethods[$key]) && isset($this->data["content"][$key])) {
-                        $content = $this->data[TypeContent::CONTENT][$key];
-                        $nameMethod = $this->callableMethods[$key];
-                        if ($content[TypeContent::TYPE] === TypeValueContent::DROPDOWN) $value = $content[TypeContent::OPTIONS][$value];
-                        if ($content[TypeContent::TYPE] === TypeValueContent::STEP_SLIDER) $value = $content[TypeContent::STEPS][$value];
-                        $this->$nameMethod($player, $value);
-                    }
-
-                    FiberManager::wait();
+            try {
+                $data = Async::await($this->processData($data));
+                if ($data === null) {
+                    $this->onClose($player);
+                    return;
                 }
-            }
-            if (is_int($data) || is_string($data)) {
-                $method = $this->callableMethods[$data] ?? null;
-                if ($method !== null) $this->$method($player, $data);
-            }
-            if (is_bool($data)) {
-                $data === true ? $method = $this->callableMethods[0] ?? null : $method = $this->callableMethods[1] ?? null;
-                if ($method !== null) $this->$method($player, $data);
+                if (is_array($data) && $this->type === TypeForm::CUSTOM_FORM) {
+                    foreach ($data as $key => $value) {
+                        if (isset($this->callableMethods[$key]) && isset($this->data["content"][$key])) {
+                            $content = $this->data[TypeContent::CONTENT][$key];
+                            $nameMethod = $this->callableMethods[$key];
+                            if ($content[TypeContent::TYPE] === TypeValueContent::DROPDOWN && isset($content[TypeContent::OPTIONS][$value])) $value = $content[TypeContent::OPTIONS][$value];
+                            if ($content[TypeContent::TYPE] === TypeValueContent::STEP_SLIDER && isset($content[TypeContent::STEPS][$value])) $value = $content[TypeContent::STEPS][$value];
+                            $this->$nameMethod($player, $value);
+                        }
+
+                        FiberManager::wait();
+                    }
+                }
+                if (is_int($data) || is_string($data)) {
+                    $method = $this->callableMethods[$data] ?? null;
+                    if ($method !== null) $this->$method($player, $data);
+                }
+                if (is_bool($data) && count($this->callableMethods) > 1){
+                    $data === true ? $method = $this->callableMethods[0] ?? null : $method = $this->callableMethods[1] ?? null;
+                    if ($method !== null) $this->$method($player, $data);
+                }
+            } catch (Throwable|Exception $e) {
+                Server::getInstance()->getLogger()->error($e->getMessage());
             }
         });
     }
