@@ -18,7 +18,7 @@ final class VStepSlider
         public ?string $label = null
     )
     {
-        //TODO: Add validation
+        //TODO: Implement constructor
     }
 
 }

@@ -21,7 +21,7 @@ final class VForm
         public string $content = ''
     )
     {
-        //TODO: Add validation for $type
+        //TODO: Implement constructor
     }
 
 }

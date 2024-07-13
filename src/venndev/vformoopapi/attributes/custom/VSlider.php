@@ -20,7 +20,7 @@ final class VSlider
         public ?string $label = null
     )
     {
-        //TODO: Implement validation
+        //TODO: Implement constructor
     }
 
 }
