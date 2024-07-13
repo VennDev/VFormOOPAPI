@@ -8,3 +8,7 @@
 
 # Example plugins
 - [PluginExample](https://github.com/VennDev/TestVForm)
+
+# Credits
+- API Designer: [VennDev](https://github.com/VennDev)
+- Wiki Designer: [ClickedTran](https://github.com/ClickedTran)
