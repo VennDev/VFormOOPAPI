@@ -114,13 +114,13 @@ class Form implements IForm
                     $attribute = $attribute->newInstance();
                     if ($attribute instanceof VForm) {
                         $this->type = $attribute->type;
-                        $this->data["type"] = $this->type;
-                        $this->data["title"] = $attribute->title;
-                        $this->data["content"] = $attribute->content;
+                        $this->data[TypeContent::TYPE] = $this->type;
+                        $this->data[TypeContent::TITLE] = $attribute->title;
+                        $this->data[TypeContent::CONTENT] = $attribute->content;
 
-                        if ($this->type === TypeForm::NORMAL_FORM) $this->data["buttons"] = [];
-                        if ($this->type === TypeForm::MODAL_FORM) $this->data["button1"] = $this->data["button2"] = "";
-                        if ($this->type === TypeForm::CUSTOM_FORM) $this->data["content"] = [];
+                        if ($this->type === TypeForm::NORMAL_FORM) $this->data[TypeContent::BUTTONS] = [];
+                        if ($this->type === TypeForm::MODAL_FORM) $this->data[TypeContent::BUTTON_1] = $this->data[TypeContent::BUTTON_2] = "";
+                        if ($this->type === TypeForm::CUSTOM_FORM) $this->data[TypeContent::CONTENT] = [];
                     }
 
                     FiberManager::wait();

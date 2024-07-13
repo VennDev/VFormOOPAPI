@@ -7,6 +7,7 @@ namespace venndev\vformoopapi\utils;
 final class TypeContent
 {
 
+    public const TITLE = 'title';
     public const CONTENT = 'content';
     public const IMAGE = 'image';
     public const BUTTONS = 'buttons';
