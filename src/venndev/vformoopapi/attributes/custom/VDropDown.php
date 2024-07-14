@@ -6,9 +6,10 @@ namespace venndev\vformoopapi\attributes\custom;
 
 use AllowDynamicProperties;
 use Attribute;
+use venndev\vformoopapi\attributes\IVAttributeForm;
 
 #[AllowDynamicProperties] #[Attribute(Attribute::TARGET_FUNCTION | Attribute::TARGET_METHOD)]
-final class VDropDown
+final class VDropDown implements IVAttributeForm
 {
 
     public function __construct(

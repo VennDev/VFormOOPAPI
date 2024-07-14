@@ -5,37 +5,25 @@ declare(strict_types=1);
 namespace venndev\vformoopapi;
 
 use Exception;
-use ReflectionAttribute;
 use ReflectionClass;
-use ReflectionMethod;
 use Throwable;
 use pocketmine\Server;
 use pocketmine\form\Form as IForm;
 use pocketmine\player\Player;
-use venndev\vformoopapi\attributes\VForm;
-use venndev\vformoopapi\manager\FormManager;
+use venndev\vformoopapi\manager\DataForm;
+use venndev\vformoopapi\manager\DataFormProcessor;
+use venndev\vformoopapi\manager\FormProcessor;
 use venndev\vformoopapi\utils\TypeContent;
 use venndev\vformoopapi\utils\TypeForm;
 use venndev\vformoopapi\utils\TypeValueContent;
 use vennv\vapm\Async;
 use vennv\vapm\FiberManager;
-use vennv\vapm\Promise;
 
 class Form implements IForm
 {
-    use FormManager;
-
-    private array $callableMethods = [];
-
-    /**
-     * @var array<ReflectionMethod>
-     */
-    private array $methods;
-
-    /**
-     * @var array<ReflectionAttribute>
-     */
-    private array $attributes;
+    use DataForm;
+    use DataFormProcessor;
+    use FormProcessor;
 
     /**
      * @throws Throwable
@@ -45,25 +33,20 @@ class Form implements IForm
         private readonly mixed  $middleWare = null
     )
     {
-        $this->sendForm();
+        //TODO: Implement constructor
     }
 
     /**
      * @throws Throwable
      */
-    public static function send(Player $player): static
+    public static function getInstance(Player $player): static
     {
         return new static($player);
     }
 
-    public function getMethods(): array
+    private function checkMethodExist(string $method): bool
     {
-        return $this->methods;
-    }
-
-    public function getAttributes(): array
-    {
-        return $this->attributes;
+        return method_exists($this, $method);
     }
 
     /**
@@ -71,13 +54,21 @@ class Form implements IForm
      */
     public function handleResponse(Player $player, mixed $data): void
     {
-        new Async(function () use ($player, $data) {
+        new Async(function () use ($player, $data): void {
             try {
                 $data = Async::await($this->processData($data));
                 if ($data === null) {
                     $this->onClose($player);
                     return;
                 }
+                $doFunction = function(mixed $key, mixed $value, string $nameMethod) use ($player) {
+                    if (isset($this->additionalAttribute[$nameMethod])) {
+                        $additionalAttribute = $this->additionalAttribute[$nameMethod];
+                        $additionalAttribute[1]($player, $value);
+                    } elseif ($this->checkMethodExist($nameMethod)) {
+                        $this->$nameMethod($player, $value);
+                    }
+                };
                 if (is_array($data) && $this->type === TypeForm::CUSTOM_FORM) {
                     foreach ($data as $key => $value) {
                         if (isset($this->callableMethods[$key]) && isset($this->data["content"][$key])) {
@@ -85,7 +76,7 @@ class Form implements IForm
                             $nameMethod = $this->callableMethods[$key];
                             if ($content[TypeContent::TYPE] === TypeValueContent::DROPDOWN && isset($content[TypeContent::OPTIONS][$value])) $value = $content[TypeContent::OPTIONS][$value];
                             if ($content[TypeContent::TYPE] === TypeValueContent::STEP_SLIDER && isset($content[TypeContent::STEPS][$value])) $value = $content[TypeContent::STEPS][$value];
-                            $this->$nameMethod($player, $value);
+                            $doFunction($key, $value, $nameMethod);
                         }
 
                         FiberManager::wait();
@@ -93,11 +84,11 @@ class Form implements IForm
                 }
                 if (is_int($data) || is_string($data)) {
                     $method = $this->callableMethods[$data] ?? null;
-                    if ($method !== null) $this->$method($player, $data);
+                    if ($method !== null) $doFunction($method, $data, $method);
                 }
-                if (is_bool($data) && count($this->callableMethods) > 1){
+                if (is_bool($data) && count($this->callableMethods) > 1) {
                     $data === true ? $method = $this->callableMethods[0] ?? null : $method = $this->callableMethods[1] ?? null;
-                    if ($method !== null) $this->$method($player, $data);
+                    if ($method !== null) $doFunction($method, $data, $method);
                 }
             } catch (Throwable|Exception $e) {
                 Server::getInstance()->getLogger()->error($e->getMessage());
@@ -108,57 +99,24 @@ class Form implements IForm
     /**
      * @throws Throwable
      */
-    private function sendForm(): void
+    public function sendForm(): Async
     {
-        Promise::c(function ($resolve, $reject): void {
+        return new Async(function (): void {
             try {
                 $classReflection = new ReflectionClass($this);
                 $this->methods = $classReflection->getMethods();
                 $this->attributes = $classReflection->getAttributes();
 
-                foreach ($this->attributes as $attribute) {
-                    $attribute = $attribute->newInstance();
-                    if ($attribute instanceof VForm) {
-                        $this->type = $attribute->type;
-                        $this->data[TypeContent::TYPE] = $this->type;
-                        $this->data[TypeContent::TITLE] = $attribute->title;
-                        $this->data[TypeContent::CONTENT] = $attribute->content;
-
-                        if ($this->type === TypeForm::NORMAL_FORM) $this->data[TypeContent::BUTTONS] = [];
-                        if ($this->type === TypeForm::MODAL_FORM) $this->data[TypeContent::BUTTON_1] = $this->data[TypeContent::BUTTON_2] = "";
-                        if ($this->type === TypeForm::CUSTOM_FORM) $this->data[TypeContent::CONTENT] = [];
-                    }
-
-                    FiberManager::wait();
-                }
-
-                foreach ($this->methods as $method) {
-                    $label = null;
-                    $isContentForm = false;
-                    $attributes = $method->getAttributes();
-                    $method = $method->getName();
-                    foreach ($attributes as $attribute) {
-                        $attribute = $attribute->newInstance();
-                        $label = $attribute->label ?? null;
-                        $isContentForm = $this->processNormalForm($attribute) ?? $this->processModalForm($attribute) ?? $this->processCustomForm($attribute);
-
-                        FiberManager::wait();
-                    }
-                    if ($isContentForm) $label !== null ? $this->callableMethods[$label] = $method : $this->callableMethods[] = $method;
-
-                    FiberManager::wait();
-                }
+                Async::await($this->processAttributes());
+                Async::await($this->processMethods());
+                Async::await($this->processAdditionalAttribute());
 
                 if (is_callable($this->middleWare)) ($this->middleWare)();
 
-                $resolve();
+                $this->player->sendForm($this);
             } catch (Throwable $e) {
-                $reject($e);
+                Server::getInstance()->getLogger()->error($e->getMessage());
             }
-        })->then(function (): void {
-            $this->player->sendForm($this);
-        })->catch(function (Throwable $e): void {
-            throw $e;
         });
     }
 

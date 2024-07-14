@@ -6,11 +6,12 @@ namespace venndev\vformoopapi\attributes\normal;
 
 use AllowDynamicProperties;
 use Attribute;
+use venndev\vformoopapi\attributes\IVAttributeForm;
 use venndev\vformoopapi\utils\ImageType;
 use venndev\vformoopapi\utils\UrlUtil;
 
 #[AllowDynamicProperties] #[Attribute(Attribute::TARGET_FUNCTION | Attribute::TARGET_METHOD)]
-final class VButton
+final class VButton implements IVAttributeForm
 {
 
     public ?string $type = null;
