@@ -18,6 +18,8 @@ trait DataForm
 {
 
     private string $type = TypeForm::NORMAL_FORM;
+    private string $title = "";
+    private string $content = "";
     private array $data = [];
     private array $labelMap = [];
     private array $validationMethods = [];

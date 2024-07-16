@@ -16,6 +16,26 @@ use vennv\vapm\Promise;
 trait FormProcessor
 {
 
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function setContent(string $content): void
+    {
+        $this->content = $content;
+    }
+
+    public function getContent(): string
+    {
+        return $this->content;
+    }
+
     public function getMethods(): array
     {
         return $this->methods;
@@ -46,10 +66,9 @@ trait FormProcessor
                 foreach ($this->attributes as $attribute) {
                     $attribute = $attribute->newInstance();
                     if ($attribute instanceof VForm) {
-                        $this->type = $attribute->type;
-                        $this->data[TypeContent::TYPE] = $this->type;
-                        $this->data[TypeContent::TITLE] = $attribute->title;
-                        $this->data[TypeContent::CONTENT] = $attribute->content;
+                        $this->data[TypeContent::TYPE] = $this->type = $attribute->type;
+                        $this->data[TypeContent::TITLE] = $this->title === "" ? $attribute->title : $this->title;
+                        $this->data[TypeContent::CONTENT] = $this->content === "" ? $attribute->content : $this->content;
 
                         if ($this->type === TypeForm::NORMAL_FORM) $this->data[TypeContent::BUTTONS] = [];
                         if ($this->type === TypeForm::MODAL_FORM) $this->data[TypeContent::BUTTON_1] = $this->data[TypeContent::BUTTON_2] = "";
