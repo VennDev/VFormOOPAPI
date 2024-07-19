@@ -9,7 +9,6 @@ use venndev\vformoopapi\attributes\IVAttributeForm;
 use venndev\vformoopapi\attributes\VForm;
 use venndev\vformoopapi\utils\TypeContent;
 use venndev\vformoopapi\utils\TypeForm;
-use venndev\vmskyblock\utils\MathUtil;
 use vennv\vapm\FiberManager;
 use vennv\vapm\Promise;
 
@@ -53,7 +52,7 @@ trait FormProcessor
 
     public function addContent(IVAttributeForm $attribute, callable $callable): void
     {
-        $this->additionalAttribute[MathUtil::generateNameMethodUUID()] = [$attribute, $callable];
+        $this->additionalAttribute[uniqid("methodAnonymous")] = [$attribute, $callable];
     }
 
     /**
