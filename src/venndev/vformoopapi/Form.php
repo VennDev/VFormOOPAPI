@@ -33,7 +33,7 @@ class Form implements IForm
         private readonly mixed  $middleWare = null
     )
     {
-        //TODO: Implement constructor
+        if (!VFormLoader::isInit()) throw new Exception("VFormLoader is not initialized");
     }
 
     /**
