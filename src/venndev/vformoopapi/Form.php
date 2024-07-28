@@ -62,12 +62,14 @@ class Form implements IForm
                     return;
                 }
                 $doFunction = function(mixed $key, mixed $value, string $nameMethod) use ($player) {
-                    if (isset($this->additionalAttribute[$nameMethod])) {
-                        $additionalAttribute = $this->additionalAttribute[$nameMethod];
-                        $additionalAttribute[1]($player, $value);
-                    } elseif ($this->checkMethodExist($nameMethod)) {
-                        $this->$nameMethod($player, $value);
-                    }
+                    new Async(function() use ($player, $key, $value, $nameMethod): void {
+                        if (isset($this->additionalAttribute[$nameMethod])) {
+                            $additionalAttribute = $this->additionalAttribute[$nameMethod];
+                            Async::await($additionalAttribute[1]($player, $value));
+                        } elseif ($this->checkMethodExist($nameMethod)) {
+                            Async::await($this->$nameMethod($player, $value));
+                        }
+                    });
                 };
                 if (is_array($data) && $this->type === TypeForm::CUSTOM_FORM) {
                     foreach ($data as $key => $value) {
