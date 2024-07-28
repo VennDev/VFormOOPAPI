@@ -78,8 +78,6 @@ class Form implements IForm
                             if ($content[TypeContent::TYPE] === TypeValueContent::STEP_SLIDER && isset($content[TypeContent::STEPS][$value])) $value = $content[TypeContent::STEPS][$value];
                             $doFunction($key, $value, $nameMethod);
                         }
-
-                        FiberManager::wait();
                     }
                 }
                 if (is_int($data) || is_string($data)) {

@@ -73,8 +73,6 @@ trait FormProcessor
                         if ($this->type === TypeForm::MODAL_FORM) $this->data[TypeContent::BUTTON_1] = $this->data[TypeContent::BUTTON_2] = "";
                         if ($this->type === TypeForm::CUSTOM_FORM) $this->data[TypeContent::CONTENT] = [];
                     }
-
-                    FiberManager::wait();
                 }
 
                 $resolve();
@@ -100,11 +98,8 @@ trait FormProcessor
                         $attribute = $attribute->newInstance();
                         $label = $attribute->label ?? null;
                         $isContentForm = $this->processNormalForm($attribute) ?? $this->processModalForm($attribute) ?? $this->processCustomForm($attribute);
-
-                        FiberManager::wait();
                     }
                     if ($isContentForm) $label !== null ? $this->callableMethods[$label] = $method : $this->callableMethods[] = $method;
-
                     FiberManager::wait();
                 }
 
@@ -128,10 +123,8 @@ trait FormProcessor
                     $label = $attributeForm->label ?? null;
                     $isContentForm = $this->processNormalForm($attributeForm) ?? $this->processModalForm($attributeForm) ?? $this->processCustomForm($attributeForm);
                     if ($isContentForm) $label !== null ? $this->callableMethods[$label] = $nameCallable : $this->callableMethods[count($this->callableMethods)] = $nameCallable;
-
                     FiberManager::wait();
                 }
-
                 $resolve();
             } catch (Throwable $e) {
                 $reject($e);
