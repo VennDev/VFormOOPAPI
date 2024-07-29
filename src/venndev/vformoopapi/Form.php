@@ -66,8 +66,8 @@ class Form implements IForm
                     $this->onClose($player);
                     return;
                 }
-                $doFunction = function(mixed $key, mixed $value, string $nameMethod) use ($player) {
-                    new Async(function() use ($player, $key, $value, $nameMethod): void {
+                $doFunction = function(mixed $key, mixed $value, string $nameMethod) use ($player): Async {
+                    return new Async(function() use ($player, $key, $value, $nameMethod): void {
                         if (isset($this->additionalAttribute[$nameMethod])) {
                             $additionalAttribute = $this->additionalAttribute[$nameMethod];
                             Async::await($additionalAttribute[1]($player, $value));
@@ -85,6 +85,7 @@ class Form implements IForm
                             if ($content[TypeContent::TYPE] === TypeValueContent::STEP_SLIDER && isset($content[TypeContent::STEPS][$value])) $value = $content[TypeContent::STEPS][$value];
                             $doFunction($key, $value, $nameMethod);
                         }
+                        FiberManager::wait();
                     }
                 }
                 if (is_int($data) || is_string($data)) {
