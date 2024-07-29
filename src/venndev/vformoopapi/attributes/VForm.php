@@ -7,6 +7,7 @@ namespace venndev\vformoopapi\attributes;
 use Attribute;
 use AllowDynamicProperties;
 use Exception;
+use venndev\vformoopapi\results\VResult;
 
 #[AllowDynamicProperties] #[Attribute(Attribute::TARGET_CLASS)]
 final class VForm
@@ -16,9 +17,9 @@ final class VForm
      * @throws Exception
      */
     public function __construct(
-        public string $title,
+        public VResult|string $title,
         public string $type,
-        public string $content = ''
+        public VResult|string $content = ''
     )
     {
         //TODO: Implement constructor

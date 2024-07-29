@@ -7,6 +7,7 @@ namespace venndev\vformoopapi\attributes\normal;
 use AllowDynamicProperties;
 use Attribute;
 use venndev\vformoopapi\attributes\IVAttributeForm;
+use venndev\vformoopapi\results\VResult;
 use venndev\vformoopapi\utils\ImageType;
 use venndev\vformoopapi\utils\UrlUtil;
 
@@ -17,8 +18,8 @@ final class VButton implements IVAttributeForm
     public ?string $type = null;
 
     public function __construct(
-        public string  $text,
-        public string  $image = '',
+        public VResult|string  $text,
+        public VResult|string  $image = '',
         public ?string $label = null
     )
     {

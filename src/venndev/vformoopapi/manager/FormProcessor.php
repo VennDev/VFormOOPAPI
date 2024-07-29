@@ -7,6 +7,7 @@ namespace venndev\vformoopapi\manager;
 use Throwable;
 use venndev\vformoopapi\attributes\IVAttributeForm;
 use venndev\vformoopapi\attributes\VForm;
+use venndev\vformoopapi\utils\ProcessDataInput;
 use venndev\vformoopapi\utils\TypeContent;
 use venndev\vformoopapi\utils\TypeForm;
 use vennv\vapm\FiberManager;
@@ -76,9 +77,8 @@ trait FormProcessor
                     $attribute = $attribute->newInstance();
                     if ($attribute instanceof VForm) {
                         $this->data[TypeContent::TYPE] = $this->type = $attribute->type;
-                        $this->data[TypeContent::TITLE] = $this->title === "" ? $attribute->title : $this->title;
-                        $this->data[TypeContent::CONTENT] = $this->content === "" ? $attribute->content : $this->content;
-
+                        $this->data[TypeContent::TITLE] = $this->title === "" ? ProcessDataInput::processDataVResult($attribute->title) : $this->title;
+                        $this->data[TypeContent::CONTENT] = $this->content === "" ? ProcessDataInput::processDataVResult($attribute->content) : $this->content;
                         if ($this->type === TypeForm::NORMAL_FORM) $this->data[TypeContent::BUTTONS] = [];
                         if ($this->type === TypeForm::MODAL_FORM) $this->data[TypeContent::BUTTON_1] = $this->data[TypeContent::BUTTON_2] = "";
                         if ($this->type === TypeForm::CUSTOM_FORM) $this->data[TypeContent::CONTENT] = [];
@@ -129,7 +129,6 @@ trait FormProcessor
             try {
                 foreach ($this->additionalAttribute as $nameCallable => $attribute) {
                     $attributeForm = $attribute[0];
-
                     $label = $attributeForm->label ?? null;
                     $isContentForm = $this->processNormalForm($attributeForm) ?? $this->processModalForm($attributeForm) ?? $this->processCustomForm($attributeForm);
                     if ($isContentForm) $label !== null ? $this->callableMethods[$label] = $nameCallable : $this->callableMethods[count($this->callableMethods)] = $nameCallable;

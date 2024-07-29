@@ -15,6 +15,7 @@ use venndev\vformoopapi\attributes\custom\VToggle;
 use venndev\vformoopapi\attributes\modal\VButton as VButtonModal;
 use venndev\vformoopapi\attributes\normal\VButton as VButtonNormal;
 use venndev\vformoopapi\utils\ImageContent;
+use venndev\vformoopapi\utils\ProcessDataInput;
 use venndev\vformoopapi\utils\TypeContent;
 use venndev\vformoopapi\utils\TypeForm;
 use venndev\vformoopapi\utils\TypeValueContent;
@@ -61,10 +62,13 @@ trait DataFormProcessor
     private function processNormalForm(object $attribute): bool|null
     {
         if ($this->type === TypeForm::NORMAL_FORM && $attribute instanceof VButtonNormal) {
-            $content = [TypeContent::TEXT => $attribute->text];
-            if ($attribute->type !== null) {
-                $content[TypeContent::IMAGE][ImageContent::TYPE] = $attribute->type;
-                $content[TypeContent::IMAGE][ImageContent::DATA] = $attribute->image;
+            $text = ProcessDataInput::processDataVResult($attribute->text);
+            $type = $attribute->type;
+            $image = ProcessDataInput::processDataVResult($attribute->image);
+            $content = [TypeContent::TEXT => $text];
+            if ($type !== null) {
+                $content[TypeContent::IMAGE][ImageContent::TYPE] = $type;
+                $content[TypeContent::IMAGE][ImageContent::DATA] = $image;
             }
             $this->data[TypeContent::BUTTONS][] = $content;
             $this->labelMap[] = $attribute->label ?? count($this->labelMap);
@@ -77,14 +81,14 @@ trait DataFormProcessor
     private function processModalForm(object $attribute): bool|null
     {
         if ($this->type === TypeForm::MODAL_FORM && $attribute instanceof VButtonModal) {
+            $text = ProcessDataInput::processDataVResult($attribute->text);
             if ($this->data[TypeContent::BUTTON_1] === "") {
-                $this->data[TypeContent::BUTTON_1] = $attribute->text;
+                $this->data[TypeContent::BUTTON_1] = $text;
             } elseif ($this->data[TypeContent::BUTTON_2] === "") {
-                $this->data[TypeContent::BUTTON_2] = $attribute->text;
+                $this->data[TypeContent::BUTTON_2] = $text;
             }
             return true;
         }
-
         return null;
     }
 
@@ -93,17 +97,19 @@ trait DataFormProcessor
         if ($this->type === TypeForm::CUSTOM_FORM) {
             $addContent = fn(array $content) => $this->data["content"][] = $content;
             if ($attribute instanceof VLabel) {
+                $text = ProcessDataInput::processDataVResult($attribute->text);
                 $addContent([
                     TypeContent::TYPE => TypeValueContent::LABEL,
-                    TypeContent::TEXT => $attribute->text
+                    TypeContent::TEXT => $text
                 ]);
                 $this->labelMap[] = $attribute->label ?? count($this->labelMap);
                 $this->validationMethods[] = static fn($v) => $v === null;
                 return true;
             } elseif ($attribute instanceof VToggle) {
+                $text = ProcessDataInput::processDataVResult($attribute->text);
                 $content = [
                     TypeContent::TYPE => TypeValueContent::TOGGLE,
-                    TypeContent::TEXT => $attribute->text
+                    TypeContent::TEXT => $text
                 ];
                 if ($attribute->default !== false) $content[TypeContent::DEFAULT] = $attribute->default;
                 $addContent($content);
@@ -111,19 +117,23 @@ trait DataFormProcessor
                 $this->validationMethods[] = static fn($v) => is_bool($v);
                 return true;
             } elseif ($attribute instanceof VInput) {
+                $text = ProcessDataInput::processDataVResult($attribute->text);
+                $placeholder = ProcessDataInput::processDataVResult($attribute->placeholder);
+                $default = ProcessDataInput::processDataVResult($attribute->default);
                 $addContent([
                     TypeContent::TYPE => TypeValueContent::INPUT,
-                    TypeContent::TEXT => $attribute->text,
-                    TypeContent::PLACEHOLDER => $attribute->placeholder,
-                    TypeContent::DEFAULT => $attribute->default
+                    TypeContent::TEXT => $text,
+                    TypeContent::PLACEHOLDER => $placeholder,
+                    TypeContent::DEFAULT => $default
                 ]);
                 $this->labelMap[] = $attribute->label ?? count($this->labelMap);
                 $this->validationMethods[] = static fn($v) => is_string($v);
                 return true;
             } elseif ($attribute instanceof VDropDown) {
+                $text = ProcessDataInput::processDataVResult($attribute->text);
                 $addContent([
                     TypeContent::TYPE => TypeValueContent::DROPDOWN,
-                    TypeContent::TEXT => $attribute->text,
+                    TypeContent::TEXT => $text,
                     TypeContent::OPTIONS => $attribute->options,
                     TypeContent::DEFAULT => $attribute->default
                 ]);
@@ -131,9 +141,10 @@ trait DataFormProcessor
                 $this->validationMethods[] = static fn($v) => $v === -1 || (is_int($v));
                 return true;
             } elseif ($attribute instanceof VSlider) {
+                $text = ProcessDataInput::processDataVResult($attribute->text);
                 $content = [
                     TypeContent::TYPE => TypeValueContent::SLIDER,
-                    TypeContent::TEXT => $attribute->text,
+                    TypeContent::TEXT => $text,
                     TypeContent::MIN => $attribute->min,
                     TypeContent::MAX => $attribute->max
                 ];
@@ -144,9 +155,10 @@ trait DataFormProcessor
                 $this->validationMethods[] = static fn($v) => (is_float($v) || is_int($v)) && $v >= $attribute->min && $v <= $attribute->max;
                 return true;
             } elseif ($attribute instanceof VStepSlider) {
+                $text = ProcessDataInput::processDataVResult($attribute->text);
                 $content = [
                     TypeContent::TYPE => TypeValueContent::STEP_SLIDER,
-                    TypeContent::TEXT => $attribute->text,
+                    TypeContent::TEXT => $text,
                     TypeContent::STEPS => $attribute->steps
                 ];
                 if ($attribute->default !== -1) $content[TypeContent::DEFAULT] = $attribute->default;

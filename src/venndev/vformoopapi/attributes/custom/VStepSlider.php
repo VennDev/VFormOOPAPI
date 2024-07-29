@@ -7,13 +7,14 @@ namespace venndev\vformoopapi\attributes\custom;
 use AllowDynamicProperties;
 use Attribute;
 use venndev\vformoopapi\attributes\IVAttributeForm;
+use venndev\vformoopapi\results\VResult;
 
 #[AllowDynamicProperties] #[Attribute(Attribute::TARGET_FUNCTION | Attribute::TARGET_METHOD)]
 final class VStepSlider implements IVAttributeForm
 {
 
     public function __construct(
-        public string  $text,
+        public VResult|string  $text,
         public array   $steps,
         public int     $default = -1,
         public ?string $label = null
