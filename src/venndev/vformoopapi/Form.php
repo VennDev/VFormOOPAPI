@@ -25,6 +25,9 @@ class Form implements IForm
     use DataFormProcessor;
     use FormProcessor;
 
+    private mixed $callableFormClose;
+    private mixed $callableFormSubmit;
+
     /**
      * @throws Throwable
      */
@@ -34,6 +37,8 @@ class Form implements IForm
     )
     {
         if (!VFormLoader::isInit()) throw new Exception("VFormLoader is not initialized");
+        $this->callableFormClose = fn() => null;
+        $this->callableFormSubmit = fn() => null;
     }
 
     /**
@@ -90,6 +95,7 @@ class Form implements IForm
                     $data === true ? $method = $this->callableMethods[0] ?? null : $method = $this->callableMethods[1] ?? null;
                     if ($method !== null) $doFunction($method, $data, $method);
                 }
+                Async::await(fn() => $this->onCompletion($player, $data)); // Call the onCompletion method
             } catch (Throwable|Exception $e) {
                 Server::getInstance()->getLogger()->error($e->getMessage());
             }
@@ -107,9 +113,26 @@ class Form implements IForm
                 $this->methods = $classReflection->getMethods();
                 $this->attributes = $classReflection->getAttributes();
 
-                Async::await($this->processAttributes());
-                Async::await($this->processMethods());
-                Async::await($this->processAdditionalAttribute());
+                $processAttributes = Async::await($this->processAttributes());
+                if ($processAttributes instanceof Throwable) {
+                    Server::getInstance()->getLogger()->error(
+                        $processAttributes->getMessage() . " in " . $processAttributes->getFile() . " on line " . $processAttributes->getLine()
+                    );
+                }
+
+                $processMethods = Async::await($this->processMethods());
+                if ($processMethods instanceof Throwable) {
+                    Server::getInstance()->getLogger()->error(
+                        $processMethods->getMessage() . " in " . $processMethods->getFile() . " on line " . $processMethods->getLine()
+                    );
+                }
+
+                $processAdditionalAttribute = Async::await($this->processAdditionalAttribute());
+                if ($processAdditionalAttribute instanceof Throwable) {
+                    Server::getInstance()->getLogger()->error(
+                        $processAdditionalAttribute->getMessage() . " in " . $processAdditionalAttribute->getFile() . " on line " . $processAdditionalAttribute->getLine()
+                    );
+                }
 
                 if (is_callable($this->middleWare)) ($this->middleWare)();
 
@@ -128,9 +151,26 @@ class Form implements IForm
         $this->data[TypeContent::CONTENT][$index] = array_merge($this->data[TypeContent::CONTENT][$index], $value);
     }
 
+    public function setFormClose(mixed $callable): void
+    {
+        $this->callableFormClose = $callable;
+    }
+
+    public function setFormSubmit(mixed $callable): void
+    {
+        $this->callableFormSubmit = $callable;
+    }
+
+    // This method is called when the form is closed
     protected function onClose(Player $player): void
     {
-        // Override this method to handle the form closing
+        ($this->callableFormClose)($player);
+    }
+
+    // This method is called when the form is submitted
+    protected function onCompletion(Player $player, mixed $data): void
+    {
+        ($this->callableFormSubmit)($player, $data);
     }
 
     public function jsonSerialize(): array

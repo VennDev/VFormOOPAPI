@@ -25,7 +25,7 @@ final class EventListener implements Listener
     private function processAttribute(Player $player): Async
     {
         return new Async(function () use ($player): void {
-            if ($player->getNetworkSession()->isConnected()) {
+            if ($player->isConnected()) {
                 $attribute = $player->getAttributeMap()->get(Attribute::EXPERIENCE_LEVEL);
                 $id = $attribute->getId();
                 $minValue = $attribute->getMinValue();
@@ -55,27 +55,23 @@ final class EventListener implements Listener
      */
     public function onDataPacketSend(DataPacketSendEvent $event): void
     {
-        new Async(function () use ($event): void {
-            $packets = $event->getPackets();
-            $targets = $event->getTargets();
-            foreach ($packets as $packet) {
-                foreach ($targets as $target) {
-                    if ($packet instanceof ModalFormRequestPacket) {
-                        $player = $target->getPlayer();
-                        if ($player !== null && $player->isOnline()) {
-                            // Async Await to handle too many packets being sent at one time.
-                            for ($i = 0; $i < VFormLoader::getPacketsToSend(); ++$i) {
-                                Async::await($this->processAttribute($player));
-                            }
-                        }
-                        // Confirm the correct packet delivery to the player who needs it.
-                        break;
+        $packets = $event->getPackets();
+        $targets = $event->getTargets();
+        foreach ($packets as $packet) {
+            foreach ($targets as $target) {
+                if ($packet instanceof ModalFormRequestPacket) {
+                    $player = $target->getPlayer();
+                    if ($player !== null && $player->isOnline()) {
+                        // Async Await to handle too many packets being sent at one time.
+                        new Async(function () use ($player): void {
+                            for ($i = 0; $i < VFormLoader::getPacketsToSend(); ++$i) Async::await($this->processAttribute($player));
+                        });
                     }
-                    FiberManager::wait();
+                    // Confirm the correct packet delivery to the player who needs it.
+                    break;
                 }
-                FiberManager::wait();
             }
-        });
+        }
     }
 
 }

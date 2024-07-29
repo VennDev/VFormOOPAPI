@@ -25,6 +25,16 @@ trait FormProcessor
         return $this->title;
     }
 
+    public function setType(string $type): void
+    {
+        $this->type = $type;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
     public function setContent(string $content): void
     {
         $this->content = $content;
