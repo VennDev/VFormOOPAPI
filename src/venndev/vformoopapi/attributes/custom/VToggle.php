@@ -14,9 +14,9 @@ final class VToggle implements IVAttributeForm
 {
 
     public function __construct(
-        public VResult|string  $text,
-        public bool    $default = false,
-        public ?string $label = null
+        public VResult|string $text,
+        public bool           $default = false,
+        public ?string        $label = null
     )
     {
         //TODO: Implement constructor

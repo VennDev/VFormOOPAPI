@@ -14,12 +14,12 @@ final class VSlider implements IVAttributeForm
 {
 
     public function __construct(
-        public VResult|string  $text,
-        public int     $min,
-        public int     $max,
-        public int     $step = -1,
-        public int     $default = -1,
-        public ?string $label = null
+        public VResult|string $text,
+        public int            $min,
+        public int            $max,
+        public int            $step = -1,
+        public int            $default = -1,
+        public ?string        $label = null
     )
     {
         //TODO: Implement constructor

@@ -16,7 +16,6 @@ final class UrlUtil
         $regex .= "(\/([a-z0-9+\$_-]\.?)+)*\/?"; // Path
         $regex .= "(\?[a-z+&\$_.-][a-z0-9;:@&%=+\/\$_.-]*)?"; // GET Query
         $regex .= "(#[a-z_.-][a-z0-9+\$_.-]*)?"; // Anchor
-
         return preg_match("/^$regex$/i", $url) === 1;
     }
 

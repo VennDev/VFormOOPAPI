@@ -14,8 +14,8 @@ final class VLabel implements IVAttributeForm
 {
 
     public function __construct(
-        public VResult|string  $text,
-        public ?string $label = null
+        public VResult|string $text,
+        public ?string        $label = null
     )
     {
         //TODO: Implement constructor

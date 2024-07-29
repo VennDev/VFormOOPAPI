@@ -131,10 +131,11 @@ trait DataFormProcessor
                 return true;
             } elseif ($attribute instanceof VDropDown) {
                 $text = ProcessDataInput::processDataVResult($attribute->text);
+                $options = ProcessDataInput::processDataVResult($attribute->options);
                 $addContent([
                     TypeContent::TYPE => TypeValueContent::DROPDOWN,
                     TypeContent::TEXT => $text,
-                    TypeContent::OPTIONS => $attribute->options,
+                    TypeContent::OPTIONS => $options,
                     TypeContent::DEFAULT => $attribute->default
                 ]);
                 $this->labelMap[] = $attribute->label ?? count($this->labelMap);
@@ -156,15 +157,16 @@ trait DataFormProcessor
                 return true;
             } elseif ($attribute instanceof VStepSlider) {
                 $text = ProcessDataInput::processDataVResult($attribute->text);
+                $steps = ProcessDataInput::processDataVResult($attribute->steps);
                 $content = [
                     TypeContent::TYPE => TypeValueContent::STEP_SLIDER,
                     TypeContent::TEXT => $text,
-                    TypeContent::STEPS => $attribute->steps
+                    TypeContent::STEPS => $steps
                 ];
                 if ($attribute->default !== -1) $content[TypeContent::DEFAULT] = $attribute->default;
                 $addContent($content);
                 $this->labelMap[] = $attribute->label ?? count($this->labelMap);
-                $this->validationMethods[] = static fn($v) => $v === -1 || (is_int($v) && isset($attribute->steps[$v]));
+                $this->validationMethods[] = static fn($v) => $v === -1 || (is_int($v) && isset($steps[$v]));
                 return true;
             }
         }

@@ -11,6 +11,6 @@ interface VResult
 
     public function setInput(mixed $input);
 
-    public function getResult();
+    public function getResult(): mixed;
 
 }

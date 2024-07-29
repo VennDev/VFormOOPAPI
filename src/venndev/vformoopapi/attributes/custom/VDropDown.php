@@ -14,10 +14,10 @@ final class VDropDown implements IVAttributeForm
 {
 
     public function __construct(
-        public VResult|string  $text,
-        public array   $options,
-        public int     $default = -1,
-        public ?string $label = null
+        public VResult|string $text,
+        public VResult|array  $options,
+        public int            $default = -1,
+        public ?string        $label = null
     )
     {
         //TODO: Implement constructor

@@ -14,10 +14,10 @@ final class VInput implements IVAttributeForm
 {
 
     public function __construct(
-        public VResult|string  $text,
-        public VResult|string  $placeholder = "",
+        public VResult|string      $text,
+        public VResult|string      $placeholder = "",
         public null|VResult|string $default = null,
-        public ?string $label = null
+        public ?string             $label = null
     )
     {
         //TODO: Implement constructor
