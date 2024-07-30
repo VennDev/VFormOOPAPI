@@ -6,8 +6,10 @@ namespace venndev\vformoopapi\attributes\normal;
 
 use AllowDynamicProperties;
 use Attribute;
+use InvalidArgumentException;
 use venndev\vformoopapi\attributes\IVAttributeForm;
 use venndev\vformoopapi\results\VResult;
+use venndev\vformoopapi\results\VResultString;
 use venndev\vformoopapi\utils\ImageType;
 use venndev\vformoopapi\utils\UrlUtil;
 
@@ -23,6 +25,11 @@ final class VButton implements IVAttributeForm
         public ?string $label = null
     )
     {
+        if ($image instanceof VResultString) {
+            $this->image = $image->getResult();
+        } else {
+            throw new InvalidArgumentException('Image must be a VResultString or string');
+        }
         UrlUtil::isUrl($this->image) ? $this->type = ImageType::URL : $this->type = ImageType::PATH;
     }
 
