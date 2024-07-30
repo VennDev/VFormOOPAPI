@@ -27,7 +27,7 @@ final class VButton implements IVAttributeForm
     {
         if ($image instanceof VResultString) {
             $this->image = $image->getResult();
-        } else {
+        } elseif (!is_string($image)) {
             throw new InvalidArgumentException('Image must be a VResultString or string');
         }
         UrlUtil::isUrl($this->image) ? $this->type = ImageType::URL : $this->type = ImageType::PATH;
