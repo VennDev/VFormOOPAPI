@@ -17,7 +17,7 @@ use venndev\vformoopapi\utils\TypeForm;
 trait DataForm
 {
 
-    private string $type = TypeForm::NORMAL_FORM;
+    private string $type = "";
     private string $title = "";
     private string $content = "";
     private array $data = [];
