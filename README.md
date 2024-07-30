@@ -9,6 +9,7 @@
 
 # Example plugins
 - [PluginExample](https://github.com/VennDev/TestVForm)
+- [GiftCode](https://github.com/ClickedTran/GiftCode)
 
 # Credits
 - API Designer: [VennDev](https://github.com/VennDev)
