@@ -16,9 +16,9 @@ use venndev\vformoopapi\utils\TypeForm;
 final class FormSample extends Form
 {
 
-    public function __construct(Player $player)
+    public function __construct(Player $player, ?callable $middleware = null)
     {
-        parent::__construct($player);
+        parent::__construct($player, $middleware);
     }
 
 }

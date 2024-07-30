@@ -28,7 +28,7 @@ trait FormProcessor
 
     public function setType(string $type): void
     {
-        $this->type = $type;
+        $this->data[TypeContent::TYPE] = $this->type = $type;
     }
 
     public function getType(): string
@@ -76,7 +76,7 @@ trait FormProcessor
                 foreach ($this->attributes as $attribute) {
                     $attribute = $attribute->newInstance();
                     if ($attribute instanceof VForm) {
-                        $this->data[TypeContent::TYPE] = $this->type = $attribute->type;
+                        $this->data[TypeContent::TYPE] = $this->type === "" ? $attribute->type : $this->type;
                         $this->data[TypeContent::TITLE] = $this->title === "" ? ProcessDataInput::processDataVResult($attribute->title) : $this->title;
                         $this->data[TypeContent::CONTENT] = $this->content === "" ? ProcessDataInput::processDataVResult($attribute->content) : $this->content;
                         if ($this->type === TypeForm::NORMAL_FORM) $this->data[TypeContent::BUTTONS] = [];

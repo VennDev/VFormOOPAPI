@@ -136,7 +136,6 @@ class Form implements IForm
                 }
 
                 if (is_callable($this->middleWare)) ($this->middleWare)();
-
                 $this->player->sendForm($this);
             } catch (Throwable $e) {
                 Server::getInstance()->getLogger()->error($e->getMessage());
