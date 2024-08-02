@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace venndev\vformoopapi\manager;
 
+use Generator;
 use Throwable;
 use venndev\vformoopapi\attributes\IVAttributeForm;
 use venndev\vformoopapi\attributes\VForm;
 use venndev\vformoopapi\utils\ProcessDataInput;
 use venndev\vformoopapi\utils\TypeContent;
 use venndev\vformoopapi\utils\TypeForm;
-use vennv\vapm\FiberManager;
-use vennv\vapm\Promise;
+use vennv\vapm\Deferred;
 
 trait FormProcessor
 {
@@ -69,9 +69,9 @@ trait FormProcessor
     /**
      * @throws Throwable
      */
-    private function processAttributes(): Promise
+    private function processAttributes(): Deferred
     {
-        return new Promise(function ($resolve, $reject) {
+        return new Deferred(function (): Generator {
             try {
                 foreach ($this->attributes as $attribute) {
                     $attribute = $attribute->newInstance();
@@ -84,10 +84,9 @@ trait FormProcessor
                         if ($this->type === TypeForm::CUSTOM_FORM) $this->data[TypeContent::CONTENT] = [];
                     }
                 }
-
-                $resolve();
+                yield true;
             } catch (Throwable $e) {
-                $reject($e);
+                yield $e;
             }
         });
     }
@@ -95,9 +94,9 @@ trait FormProcessor
     /**
      * @throws Throwable
      */
-    private function processMethods(): Promise
+    private function processMethods(): Deferred
     {
-        return new Promise(function ($resolve, $reject) {
+        return new Deferred(function (): Generator {
             try {
                 foreach ($this->methods as $method) {
                     $label = null;
@@ -110,12 +109,10 @@ trait FormProcessor
                         $isContentForm = $this->processNormalForm($attribute) ?? $this->processModalForm($attribute) ?? $this->processCustomForm($attribute);
                     }
                     if ($isContentForm) $label !== null ? $this->callableMethods[$label] = $method : $this->callableMethods[] = $method;
-                    FiberManager::wait();
                 }
-
-                $resolve();
+                yield true;
             } catch (Throwable $e) {
-                $reject($e);
+                yield $e;
             }
         });
     }
@@ -123,20 +120,19 @@ trait FormProcessor
     /**
      * @throws Throwable
      */
-    private function processAdditionalAttribute(): Promise
+    private function processAdditionalAttribute(): Deferred
     {
-        return new Promise(function ($resolve, $reject) {
+        return new Deferred(function (): Generator {
             try {
                 foreach ($this->additionalAttribute as $nameCallable => $attribute) {
                     $attributeForm = $attribute[0];
                     $label = $attributeForm->label ?? null;
                     $isContentForm = $this->processNormalForm($attributeForm) ?? $this->processModalForm($attributeForm) ?? $this->processCustomForm($attributeForm);
                     if ($isContentForm) $label !== null ? $this->callableMethods[$label] = $nameCallable : $this->callableMethods[count($this->callableMethods)] = $nameCallable;
-                    FiberManager::wait();
                 }
-                $resolve();
+                yield true;
             } catch (Throwable $e) {
-                $reject($e);
+                yield $e;
             }
         });
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace venndev\vformoopapi;
 
 use Exception;
+use Generator;
 use ReflectionClass;
 use Throwable;
 use pocketmine\Server;
@@ -17,6 +18,8 @@ use venndev\vformoopapi\utils\TypeContent;
 use venndev\vformoopapi\utils\TypeForm;
 use venndev\vformoopapi\utils\TypeValueContent;
 use vennv\vapm\Async;
+use vennv\vapm\CoroutineGen;
+use vennv\vapm\Deferred;
 use vennv\vapm\FiberManager;
 
 class Form implements IForm
@@ -106,35 +109,31 @@ class Form implements IForm
     /**
      * @throws Throwable
      */
-    public function sendForm(): Async
+    public function sendForm(): void
     {
-        return new Async(function (): void {
+        CoroutineGen::runBlocking(function (): Generator {
             try {
                 $classReflection = new ReflectionClass($this);
                 $this->methods = $classReflection->getMethods();
                 $this->attributes = $classReflection->getAttributes();
-
-                $processAttributes = Async::await($this->processAttributes());
+                [$processAttributes, $processMethods, $processAdditionalAttribute] = yield from Deferred::awaitAll(
+                    $this->processAttributes(), $this->processMethods(), $this->processAdditionalAttribute()
+                );
                 if ($processAttributes instanceof Throwable) {
                     Server::getInstance()->getLogger()->error(
                         $processAttributes->getMessage() . " in " . $processAttributes->getFile() . " on line " . $processAttributes->getLine()
                     );
                 }
-
-                $processMethods = Async::await($this->processMethods());
                 if ($processMethods instanceof Throwable) {
                     Server::getInstance()->getLogger()->error(
                         $processMethods->getMessage() . " in " . $processMethods->getFile() . " on line " . $processMethods->getLine()
                     );
                 }
-
-                $processAdditionalAttribute = Async::await($this->processAdditionalAttribute());
                 if ($processAdditionalAttribute instanceof Throwable) {
                     Server::getInstance()->getLogger()->error(
                         $processAdditionalAttribute->getMessage() . " in " . $processAdditionalAttribute->getFile() . " on line " . $processAdditionalAttribute->getLine()
                     );
                 }
-
                 if (is_callable($this->middleWare)) ($this->middleWare)();
                 $this->player->sendForm($this);
             } catch (Throwable $e) {
