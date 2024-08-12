@@ -22,5 +22,6 @@ final class TypeContent
     public const MAX = 'max';
     public const STEP = 'step';
     public const STEPS = 'steps';
+    public const LABEL = 'label';
 
 }

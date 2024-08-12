@@ -7,6 +7,6 @@ namespace venndev\vformoopapi\attributes;
 interface IVAttributeForm
 {
 
-    //TODO: Implement constructor
+    public function __toArray(): array;
 
 }

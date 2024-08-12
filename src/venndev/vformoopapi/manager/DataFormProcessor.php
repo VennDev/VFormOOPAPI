@@ -65,16 +65,16 @@ trait DataFormProcessor
             $text = ProcessDataInput::processDataVResult($attribute->text);
             $type = $attribute->type;
             $image = ProcessDataInput::processDataVResult($attribute->image);
+            $label = ProcessDataInput::processDataVResult($attribute->label);
             $content = [TypeContent::TEXT => $text];
             if ($type !== null) {
                 $content[TypeContent::IMAGE][ImageContent::TYPE] = $type;
                 $content[TypeContent::IMAGE][ImageContent::DATA] = $image;
             }
             $this->data[TypeContent::BUTTONS][] = $content;
-            $this->labelMap[] = $attribute->label ?? count($this->labelMap);
+            $this->labelMap[] = $label ?? count($this->labelMap);
             return true;
         }
-
         return null;
     }
 
@@ -98,74 +98,87 @@ trait DataFormProcessor
             $addContent = fn(array $content) => $this->data["content"][] = $content;
             if ($attribute instanceof VLabel) {
                 $text = ProcessDataInput::processDataVResult($attribute->text);
+                $label = ProcessDataInput::processDataVResult($attribute->label);
                 $addContent([
                     TypeContent::TYPE => TypeValueContent::LABEL,
                     TypeContent::TEXT => $text
                 ]);
-                $this->labelMap[] = $attribute->label ?? count($this->labelMap);
+                $this->labelMap[] = $label ?? count($this->labelMap);
                 $this->validationMethods[] = static fn($v) => $v === null;
                 return true;
             } elseif ($attribute instanceof VToggle) {
                 $text = ProcessDataInput::processDataVResult($attribute->text);
+                $default = ProcessDataInput::processDataVResult($attribute->default);
+                $label = ProcessDataInput::processDataVResult($attribute->label);
                 $content = [
                     TypeContent::TYPE => TypeValueContent::TOGGLE,
                     TypeContent::TEXT => $text
                 ];
-                if ($attribute->default !== false) $content[TypeContent::DEFAULT] = $attribute->default;
+                if ($attribute->default !== false) $content[TypeContent::DEFAULT] = $default;
                 $addContent($content);
-                $this->labelMap[] = $attribute->label ?? count($this->labelMap);
+                $this->labelMap[] = $label ?? count($this->labelMap);
                 $this->validationMethods[] = static fn($v) => is_bool($v);
                 return true;
             } elseif ($attribute instanceof VInput) {
                 $text = ProcessDataInput::processDataVResult($attribute->text);
                 $placeholder = ProcessDataInput::processDataVResult($attribute->placeholder);
                 $default = ProcessDataInput::processDataVResult($attribute->default);
+                $label = ProcessDataInput::processDataVResult($attribute->label);
                 $addContent([
                     TypeContent::TYPE => TypeValueContent::INPUT,
                     TypeContent::TEXT => $text,
                     TypeContent::PLACEHOLDER => $placeholder,
                     TypeContent::DEFAULT => $default
                 ]);
-                $this->labelMap[] = $attribute->label ?? count($this->labelMap);
+                $this->labelMap[] = $label ?? count($this->labelMap);
                 $this->validationMethods[] = static fn($v) => is_string($v);
                 return true;
             } elseif ($attribute instanceof VDropDown) {
                 $text = ProcessDataInput::processDataVResult($attribute->text);
                 $options = ProcessDataInput::processDataVResult($attribute->options);
+                $default = ProcessDataInput::processDataVResult($attribute->default);
+                $label = ProcessDataInput::processDataVResult($attribute->label);
                 $addContent([
                     TypeContent::TYPE => TypeValueContent::DROPDOWN,
                     TypeContent::TEXT => $text,
                     TypeContent::OPTIONS => $options,
-                    TypeContent::DEFAULT => $attribute->default
+                    TypeContent::DEFAULT => $default
                 ]);
-                $this->labelMap[] = $attribute->label ?? count($this->labelMap);
+                $this->labelMap[] = $label ?? count($this->labelMap);
                 $this->validationMethods[] = static fn($v) => $v === -1 || (is_int($v));
                 return true;
             } elseif ($attribute instanceof VSlider) {
                 $text = ProcessDataInput::processDataVResult($attribute->text);
+                $min = ProcessDataInput::processDataVResult($attribute->min);
+                $max = ProcessDataInput::processDataVResult($attribute->max);
+                $step = ProcessDataInput::processDataVResult($attribute->step);
+                $default = ProcessDataInput::processDataVResult($attribute->default);
+                $label = ProcessDataInput::processDataVResult($attribute->label);
                 $content = [
                     TypeContent::TYPE => TypeValueContent::SLIDER,
                     TypeContent::TEXT => $text,
-                    TypeContent::MIN => $attribute->min,
-                    TypeContent::MAX => $attribute->max
+                    TypeContent::MIN => $min,
+                    TypeContent::MAX => $max
                 ];
-                if ($attribute->step !== -1) $content[TypeContent::STEP] = $attribute->step;
-                if ($attribute->default !== -1) $content[TypeContent::DEFAULT] = $attribute->default;
+                if ($attribute->step !== -1) $content[TypeContent::STEP] = $step;
+                if ($attribute->default !== -1) $content[TypeContent::DEFAULT] = $default;
                 $addContent($content);
-                $this->labelMap[] = $attribute->label ?? count($this->labelMap);
-                $this->validationMethods[] = static fn($v) => (is_float($v) || is_int($v)) && $v >= $attribute->min && $v <= $attribute->max;
+                $this->labelMap[] = $label ?? count($this->labelMap);
+                $this->validationMethods[] = static fn($v) => (is_float($v) || is_int($v)) && $v >= $min && $v <= $max;
                 return true;
             } elseif ($attribute instanceof VStepSlider) {
                 $text = ProcessDataInput::processDataVResult($attribute->text);
                 $steps = ProcessDataInput::processDataVResult($attribute->steps);
+                $default = ProcessDataInput::processDataVResult($attribute->default);
+                $label = ProcessDataInput::processDataVResult($attribute->label);
                 $content = [
                     TypeContent::TYPE => TypeValueContent::STEP_SLIDER,
                     TypeContent::TEXT => $text,
                     TypeContent::STEPS => $steps
                 ];
-                if ($attribute->default !== -1) $content[TypeContent::DEFAULT] = $attribute->default;
+                if ($default !== -1) $content[TypeContent::DEFAULT] = $default;
                 $addContent($content);
-                $this->labelMap[] = $attribute->label ?? count($this->labelMap);
+                $this->labelMap[] = $label ?? count($this->labelMap);
                 $this->validationMethods[] = static fn($v) => $v === -1 || (is_int($v) && isset($steps[$v]));
                 return true;
             }

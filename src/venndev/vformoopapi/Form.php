@@ -11,6 +11,7 @@ use Throwable;
 use pocketmine\Server;
 use pocketmine\form\Form as IForm;
 use pocketmine\player\Player;
+use venndev\vformoopapi\attributes\IVAttributeForm;
 use venndev\vformoopapi\manager\DataForm;
 use venndev\vformoopapi\manager\DataFormProcessor;
 use venndev\vformoopapi\manager\FormProcessor;
@@ -147,6 +148,7 @@ class Form implements IForm
      */
     protected function setIndexContent(int $index, mixed $value): void
     {
+        if ($value instanceof IVAttributeForm) $value = $value->__toArray();
         $this->data[TypeContent::CONTENT][$index] = array_merge($this->data[TypeContent::CONTENT][$index], $value);
     }
 

@@ -18,7 +18,7 @@ final class VForm
      */
     public function __construct(
         public VResult|string $title,
-        public string $type,
+        public VResult|string $type,
         public VResult|string $content = ''
     )
     {

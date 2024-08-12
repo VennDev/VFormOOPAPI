@@ -8,19 +8,30 @@ use AllowDynamicProperties;
 use Attribute;
 use venndev\vformoopapi\attributes\IVAttributeForm;
 use venndev\vformoopapi\results\VResult;
+use venndev\vformoopapi\utils\TypeContent;
 
 #[AllowDynamicProperties] #[Attribute(Attribute::TARGET_FUNCTION | Attribute::TARGET_METHOD)]
 final class VStepSlider implements IVAttributeForm
 {
 
     public function __construct(
-        public VResult|string $text,
-        public VResult|array  $steps,
-        public int            $default = -1,
-        public ?string        $label = null
+        public VResult|string      $text,
+        public VResult|array       $steps,
+        public VResult|int         $default = -1,
+        public VResult|string|null $label = null
     )
     {
         //TODO: Implement constructor
+    }
+
+    public function __toArray(): array
+    {
+        return [
+            TypeContent::TEXT => $this->text,
+            TypeContent::STEPS => $this->steps,
+            TypeContent::DEFAULT => $this->default,
+            TypeContent::LABEL => $this->label
+        ];
     }
 
 }

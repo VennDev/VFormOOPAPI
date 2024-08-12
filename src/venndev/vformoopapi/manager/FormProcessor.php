@@ -76,7 +76,7 @@ trait FormProcessor
                 foreach ($this->attributes as $attribute) {
                     $attribute = $attribute->newInstance();
                     if ($attribute instanceof VForm) {
-                        $this->data[TypeContent::TYPE] = $this->type === "" ? $this->type = $attribute->type : $this->type;
+                        $this->data[TypeContent::TYPE] = $this->type === "" ? $this->type = ProcessDataInput::processDataVResult($attribute->type) : $this->type;
                         $this->data[TypeContent::TITLE] = $this->title === "" ? ProcessDataInput::processDataVResult($attribute->title) : $this->title;
                         $this->data[TypeContent::CONTENT] = $this->content === "" ? ProcessDataInput::processDataVResult($attribute->content) : $this->content;
                         if ($this->type === TypeForm::NORMAL_FORM) $this->data[TypeContent::BUTTONS] = [];
@@ -84,9 +84,9 @@ trait FormProcessor
                         if ($this->type === TypeForm::CUSTOM_FORM) $this->data[TypeContent::CONTENT] = [];
                     }
                 }
-                yield true;
+                return yield true;
             } catch (Throwable $e) {
-                yield $e;
+                return yield $e;
             }
         });
     }
@@ -110,9 +110,9 @@ trait FormProcessor
                     }
                     if ($isContentForm) $label !== null ? $this->callableMethods[$label] = $method : $this->callableMethods[] = $method;
                 }
-                yield true;
+                return yield true;
             } catch (Throwable $e) {
-                yield $e;
+                return yield $e;
             }
         });
     }
@@ -130,9 +130,9 @@ trait FormProcessor
                     $isContentForm = $this->processNormalForm($attributeForm) ?? $this->processModalForm($attributeForm) ?? $this->processCustomForm($attributeForm);
                     if ($isContentForm) $label !== null ? $this->callableMethods[$label] = $nameCallable : $this->callableMethods[count($this->callableMethods)] = $nameCallable;
                 }
-                yield true;
+                return yield true;
             } catch (Throwable $e) {
-                yield $e;
+                return yield $e;
             }
         });
     }
