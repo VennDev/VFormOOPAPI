@@ -112,7 +112,7 @@ class Form implements IForm
      */
     public function sendForm(): void
     {
-        CoroutineGen::runBlocking(function (): Generator {
+        CoroutineGen::runNonBlocking(function (): Generator {
             try {
                 $classReflection = new ReflectionClass($this);
                 $this->methods = $classReflection->getMethods();
