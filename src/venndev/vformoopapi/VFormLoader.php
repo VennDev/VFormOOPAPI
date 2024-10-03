@@ -19,7 +19,7 @@ final class VFormLoader
         if (self::$isInit) return;
         self::$isInit = true;
         VapmPMMP::init($plugin);
-        $plugin->getServer()->getPluginManager()->registerEvents(new listener\EventListener(), $plugin);
+        //$plugin->getServer()->getPluginManager()->registerEvents(new listener\EventListener(), $plugin);
     }
 
     public static function getPacketsToSend(): int
@@ -36,5 +36,5 @@ final class VFormLoader
     {
         return self::$isInit;
     }
-
 }
+

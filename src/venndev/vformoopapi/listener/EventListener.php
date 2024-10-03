@@ -8,12 +8,11 @@ use pocketmine\entity\Attribute;
 use pocketmine\event\Listener;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
-use pocketmine\network\mcpe\protocol\types\entity\Attribute as AttributeNetwork;
+use pocketmine\network\mcpe\protocol\types\entity\UpdateAttribute;
 use pocketmine\network\mcpe\protocol\UpdateAttributesPacket;
 use pocketmine\player\Player;
 use venndev\vformoopapi\VFormLoader;
 use vennv\vapm\Async;
-use vennv\vapm\FiberManager;
 use Throwable;
 
 final class EventListener implements Listener
@@ -32,11 +31,13 @@ final class EventListener implements Listener
                 $maxValue = $attribute->getMaxValue();
                 $value = $attribute->getValue();
                 $defaultValue = $attribute->getDefaultValue();
-                $networkAttribute = new AttributeNetwork(
+                $networkAttribute = new UpdateAttribute(
                     id: $id,
                     min: $minValue,
                     max: $maxValue,
                     current: $value,
+                    defaultMin: $minValue,
+                    defaultMax: $maxValue,
                     default: $defaultValue,
                     modifiers: []
                 );
@@ -73,5 +74,5 @@ final class EventListener implements Listener
             }
         }
     }
-
 }
+
